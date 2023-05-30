@@ -1,7 +1,7 @@
 # Programación Orientada a Objetos 
 ## Proyecto Integrador
 
-### **Modelado de servicio de streaming **
+### Modelado de servicio de streaming
 
 En los últimos años, han proliferado los servicios de streaming de video bajo demanda por ejemplo Netflix, Disney, DC, entre otros. Algunos de ellos se especializan por el volumen de videos que proporcionan a sus usuarios mientras que otros se han puesto el reto de mostrar solamente videos de su propia marca. Una versión limitada para apoyar a un futuro proveedor de este tipo de servicios es la que se describe a continuación:
 
