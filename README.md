@@ -3,60 +3,63 @@
 
 ### Modelado de servicio de streaming
 
-En los últimos años, han proliferado los servicios de streaming de video bajo demanda por ejemplo Netflix, Disney, DC, entre otros. Algunos de ellos se especializan por el volumen de videos que proporcionan a sus usuarios mientras que otros se han puesto el reto de mostrar solamente videos de su propia marca. Una versión limitada para apoyar a un futuro proveedor de este tipo de servicios es la que se describe a continuación:
+En los últimos años, han proliferado los servicios de streaming de video bajo demanda por ejemplo Netflix, Disney Plus, HBO Max, entre otros. Algunos de ellos se especializan por el volumen de videos que proporcionan a sus usuarios mientras que otros se han puesto el reto de mostrar solamente videos de su propia marca. Una versión limitada para apoyar a un futuro proveedor de este tipo de servicios es la que se describe a continuación:
 
-Se quiere trabajar con dos tipos de videos: películas y series. 
+Se quiere trabajar con dos tipos de videos: películas y episodios de series.
 
 Todo video tiene:
+- ID.
+- Nombre de la película o nombre del episodio de una serie.
+- Género (Pueden ser varios separados por el caracter **&**).
+- Calificación en escala de **1 a 7**.
+- Duración en minutos.
+- Fecha de estreno en formato ***mm/dd/aaaa***.
 
-- ID
-- Nombre de Película/Serie
-- Género (Pueden ser varios)
-- Calificación
-- Duración 
-- Fecha Estreno
+Las series tienen episodios y cada episodio tiene:
 
-Las series tienen capítulos y cada capítulo tiene:
-
-- ID
-- Nombre
+- ID.
+- Nombre.
 - Temporada a la que pertenece.
-- Número de capítulo
+- Número de episodio.
 
-Nos interesa conocer la calificación promedio que ha recibido cada uno de los videos. Esta calificación está en escala de 1 a 7, donde 7 es la mejor calificación y 1 es la más baja.
+Nos interesa construir un sistema de consulta para esta información que se encuentra en un archivo de texto.
 
-El sistema debe ser capaz de mostrar el siguiente menu ciclado:
+El sistema debe ser capaz de mostrar el siguiente menu de manera iterativa, termina hasta que el usuario selecciona Salir:
 
-1. Cargar el archivo de datos con formato Excel.
+1. Cargar el archivo de datos en formato **csv**.
 2. Mostrar los videos en general con:
-   1.  Una calificación mayor o igual a un valor tecleado por el usuario. 
-   2.  Un género tecleado por el usuario.
-3. Mostrar todos los capítulos de una determinada serie.
+   - Una calificación mayor o igual a un valor tecleado por el usuario. 
+   - Un género tecleado por el usuario.
+3. Mostrar todos los episodios de una determinada serie que teclea el usuario.
 4. Mostrar las películas con una calificacion mayor a un número tecleado por el usuario.
 5. Calificar un video.
    - Pedir titulo de película o nombre del capítulo de la serie a calificar.
-   - Pedir valor otorgado y asignarlo.
-6. Calcular el promedio de la calificación de una serie (promedio de los episodios).
+   - Pedir valor otorgado y asignarlo (reemplaza la calificación anterior).
+6. Calcular el promedio de la calificación de una serie (promedio de todos los episodios).
 7. Salir.
+
+### **Estos requerimientos podrían cambiar hasta una semana antes de la entrega final. Asegúrate de construir tu aplicación de tal manera que sea fácil hacer modificaciones.**
 
 
 ## Entrega
 
-Se entregará a través de GitHub, todos los archivos .h y .cpp  junto al **diagrama de clases** en imagen jpg o png.
+Se entregará a través de **GitHub**, todos los archivos .h y .cpp  junto al **diagrama de clases** en jpg, png o pdf.
 
-Entregar en el espacio en Canvas un archivo ZIP que contenga las siguientes carpetas con el siguiente contenido:
+Entregar también en Canvas un archivo **ZIP** que contenga dos carpetas con el contenido indicado:
 
-- doc       (20 pts)
-      Un documento PDF con:
-        hoja de presentación,
-        índice de contenido,
-        Introducción (planteamiento del problema).
-        diagrama de clases UML con una argumentación del por qué del diseño,,
-        ejemplo de ejecución (capturas de pantalla),
-        argumentación de las partes del proyecto relacionadas con cada uno de los puntos a) a g) mencionados arriba, con una argumentación de el por qué se optó por esa solución y no por otras.
-        identificación de casos que harían que el proyecto deje de funcionar,
-        conclusión personal.
-        referencias consultadas
+- **doc** (20 pts)
 
-- src       (80 pts)
-         Todos los archivos fuente necesarios para ejecutar la solución propuesta en el ambiente establecido al inicio del curso.
+   Un documento PDF con:
+   - Portada.
+   - índice de contenido.
+   - Introducción (planteamiento del problema).
+   - Diagrama de clases explicando el diseño.
+   - Ejemplos de ejecución de todas las opciones (capturas de  mostrando resultados exitos y mensajes de error cuando aplique).
+   - Identificación de casos que harían que el proyecto deje de funcionar.
+   - Conclusión personal. Partes difíciles de implementar, importancia del diagrama de clases, codificación, aprendizaje, problemas presentados, etc.
+   - Referencias consultadas en formato APA.
+
+
+- **src** (80 pts)
+
+   Todos los archivos fuente necesarios para ejecutar la solución propuesta en el ambiente establecido al inicio del curso. No olvides incluir tu archivo csv y  ***considera que para probar tu código puedo reemplazarlo por otro.***
