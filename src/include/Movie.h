@@ -1,6 +1,7 @@
 #ifndef MOVIE_H
 #define MOVIE_H
 
+#include <string>
 #include "Video.h"
 
 class Movie : public Video {

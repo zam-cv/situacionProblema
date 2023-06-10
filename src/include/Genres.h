@@ -1,6 +1,7 @@
 #ifndef GENRES_H
 #define GENRES_H
 
+#include <string>
 #include <vector>
 
 class Genres {
