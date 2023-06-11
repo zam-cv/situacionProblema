@@ -31,8 +31,7 @@ void Platform::run() {
   }
 }
 
-void Platform::showOptions(std::function<void()> showMessage, Option *handlers,
-                           int size) {
+void Platform::showOptions(std::function<void()> showMessage, Option *handlers, int size) {
   std::string optionStr;
   int option;
 
@@ -57,8 +56,7 @@ void Platform::showOptions(std::function<void()> showMessage, Option *handlers,
         break;
       }
     } catch (std::invalid_argument const &e) {
-    } catch (std::out_of_range const &e) {
-    }
+    } catch (std::out_of_range const &e) {}
 
     this->isInvalid = true;
   }
@@ -69,8 +67,9 @@ void Platform::showOptions(std::function<void()> showMessage, Option *handlers,
 }
 
 void Platform::menu() {
-  this->showOptions([]() { std::cout << "Menu\n\n"; }, this->menuOptions,
-                    this->MENU_OPTIONS_SIZE);
+  this->showOptions([]() { 
+    std::cout << "Menu\n\n"; 
+  }, this->menuOptions, this->MENU_OPTIONS_SIZE);
 }
 
 void Platform::loadFile() {
@@ -95,7 +94,6 @@ void Platform::loadFile() {
         []() { std::cout << "\033[31mError al abrir el archivo\033[0m\n\n"; },
         this->fileLoadOptions, this->FILE_LOAD_OPTIONS_SIZE);
   } else {
-    // leer csv
     std::string line;
     std::getline(file, line);
 
