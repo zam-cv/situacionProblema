@@ -21,7 +21,6 @@ private:
   void menu();
   void showTitle();
   void showOptions(std::function<void()> showMessage, Option *handlers, int size);
-  void showOptions(std::string message, Option *handlers, int size);
   void loadFile();
   void searchVideo();
   void searchSerie();

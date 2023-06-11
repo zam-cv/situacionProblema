@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <vector>
 
 static const std::string TITLE = "Plataforma de Streaming";
 static const std::string DEFAULT_DATA_FILE_PATH = "../DatosPeliculas.csv";
@@ -15,7 +16,7 @@ Platform::Platform() {
       {"Buscar pelicula", [&]() { this->searchMovie(); }},
       {"Calificar video", [&]() { this->rateVideo(); }},
       {"Salir", [&]() { exit(0); }}};
-  
+
   this->fileLoadOptions = new Option[this->FILE_LOAD_OPTIONS_SIZE]{
       {"Intentar nuevamente", [&]() { this->loadFile(); }},
       {"Regresar al Menu", [&]() { this->menu(); }}};
@@ -30,7 +31,8 @@ void Platform::run() {
   }
 }
 
-void Platform::showOptions(std::function<void()> showMessage, Option *handlers, int size) {
+void Platform::showOptions(std::function<void()> showMessage, Option *handlers,
+                           int size) {
   std::string optionStr;
   int option;
 
@@ -67,9 +69,8 @@ void Platform::showOptions(std::function<void()> showMessage, Option *handlers, 
 }
 
 void Platform::menu() {
-  this->showOptions([]() { 
-    std::cout << "Menu\n\n";
-  }, this->menuOptions, this->MENU_OPTIONS_SIZE);
+  this->showOptions([]() { std::cout << "Menu\n\n"; }, this->menuOptions,
+                    this->MENU_OPTIONS_SIZE);
 }
 
 void Platform::loadFile() {
@@ -90,11 +91,39 @@ void Platform::loadFile() {
   std::ifstream file(path);
 
   if (!file.is_open()) {
-    this->showOptions([]() { 
-      std::cout << "\033[31mError al abrir el archivo\033[0m\n\n";
-    }, this->fileLoadOptions, this->FILE_LOAD_OPTIONS_SIZE);
+    this->showOptions(
+        []() { std::cout << "\033[31mError al abrir el archivo\033[0m\n\n"; },
+        this->fileLoadOptions, this->FILE_LOAD_OPTIONS_SIZE);
   } else {
-    
+    // leer csv
+    std::string line;
+    std::getline(file, line);
+
+    while (std::getline(file, line)) {
+      std::vector<std::string> row;
+
+      std::string delimiter = ",";
+      size_t pos = 0;
+      std::string token;
+
+      while ((pos = line.find(delimiter)) != std::string::npos) {
+        token = line.substr(0, pos);
+
+        if (!token.empty() && token != "\r") {
+          row.push_back(token);
+        }
+
+        line.erase(0, pos + delimiter.length());
+      }
+
+      if (row.size() == 6) {
+        std::cout << "Pelicula" << std::endl;
+      } else if (row.size() == 9) {
+        std::cout << "Serie" << std::endl;
+      }
+    }
+
+    std::cin.ignore();
   }
 }
 

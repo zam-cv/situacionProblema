@@ -34,8 +34,13 @@
 # Debug files
 /main
 /main-debug
-/main.dSYM/**
-/.DS_Store
+/src/bin/main.dSYM/**
 
 # VSCode
 /.vscode
+
+# Bin
+/src/bin/main
+
+# System Files
+.DS_Store
