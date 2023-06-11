@@ -1,13 +1,14 @@
 #ifndef MOVIE_H
 #define MOVIE_H
 
-#include <string>
+#include "Content.h"
 #include "Video.h"
+#include <string>
 
 class Movie : public Video {
-private:
 public:
-  Movie(Video video);
+  Movie(std::string id, std::string name, int duration, std::string genres,
+        double rating, std::string releaseDate);
   std::string toString();
 };
 

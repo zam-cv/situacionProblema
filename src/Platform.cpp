@@ -5,6 +5,9 @@
 #include <string>
 #include <vector>
 
+#include "./include/Video.h"
+#include "./include/Movie.h"
+
 static const std::string TITLE = "Plataforma de Streaming";
 static const std::string DEFAULT_DATA_FILE_PATH = "../DatosPeliculas.csv";
 
@@ -115,7 +118,11 @@ void Platform::loadFile() {
       }
 
       if (row.size() == 6) {
-        std::cout << "Pelicula" << std::endl;
+        int duration = std::stod(row[2]);
+        double rating = std::stoi(row[4]);
+
+        Movie movie(row[0], row[1], duration, row[3], rating, row[5]);
+        std::cout << movie.toString() << std::endl;
       } else if (row.size() == 9) {
         std::cout << "Serie" << std::endl;
       }
