@@ -10,13 +10,18 @@ struct Option {
 
 class Platform {
 private:
+  // loadErrorOptions
+  static const int LOAD_ERROR_OPTIONS_SIZE = 2;
   static const int MENU_OPTIONS_SIZE = 6;
   static const int FILE_LOAD_OPTIONS_SIZE = 2;
 
   Option *menuOptions;
   Option *fileLoadOptions;
+  Option *loadErrorOptions;
 
   bool isInvalid;
+  bool uploadedFiles;
+
   void clear();
   void menu();
   void showTitle();
@@ -26,6 +31,7 @@ private:
   void searchSerie();
   void searchMovie();
   void rateVideo();
+  void checkUploadedFiles();
 
 public:
   Platform();

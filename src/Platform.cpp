@@ -30,7 +30,12 @@ Platform::Platform() {
       {"Intentar nuevamente", [&]() { this->loadFile(); }},
       {"Regresar al Menu", [&]() { this->menu(); }}};
 
+  this->loadErrorOptions = new Option[this->LOAD_ERROR_OPTIONS_SIZE]{
+      {"Cargar archivo", [&]() { this->loadFile(); }},
+      {"Regresar al Menu", [&]() { this->menu(); }}};
+
   this->isInvalid = false;
+  this->uploadedFiles = false;
 }
 
 void Platform::run() {
@@ -101,7 +106,9 @@ void Platform::loadFile() {
 
   if (!file.is_open()) {
     this->showOptions(
-        []() { std::cout << Color::red("Error al abrir el archivo") << "\n\n"; },
+        []() {
+          std::cout << Color::red("Error al abrir el archivo") << "\n\n";
+        },
         this->fileLoadOptions, this->FILE_LOAD_OPTIONS_SIZE);
   } else {
     std::vector<Content *> contents;
@@ -133,7 +140,8 @@ void Platform::loadFile() {
       const std::string id = row[0];
       const std::string name = String::trim(row[1]);
       const std::string durationStr = row[2];
-      const std::vector<std::string> genres = String::split(String::trim(row[3]), '&');
+      const std::vector<std::string> genres =
+          String::split(String::trim(row[3]), '&');
       const std::string ratingStr = row[4];
       const std::string releaseDate = row[5];
 
@@ -198,32 +206,49 @@ void Platform::loadFile() {
   }
 }
 
+void Platform::checkUploadedFiles() {
+  if (this->uploadedFiles)
+    return;
+
+  this->showOptions(
+      []() {
+        std::cout << Color::red("No se ha cargado ningun archivo") << "\n\n";
+      },
+      this->loadErrorOptions, this->LOAD_ERROR_OPTIONS_SIZE);
+}
+
 void Platform::searchVideo() {
+  this->checkUploadedFiles();
+
   std::cout << "Buscar video\n\n";
   std::cin.ignore();
 }
 
 void Platform::searchSerie() {
+  this->checkUploadedFiles();
+
   std::cout << "Buscar serie\n\n";
   std::cin.ignore();
 }
 
 void Platform::searchMovie() {
+  this->checkUploadedFiles();
+
   std::cout << "Buscar pelicula\n\n";
   std::cin.ignore();
 }
 
 void Platform::rateVideo() {
+  this->checkUploadedFiles();
+
   std::cout << "Calificar video\n\n";
   std::cin.ignore();
 }
 
 void Platform::showTitle() {
   this->clear();
-  std::cout << Color::blue("====== ") << TITLE << " "
-            << Color::blue("====== ") << "\n\n";
+  std::cout << Color::blue("====== ") << TITLE << " " << Color::blue("====== ")
+            << "\n\n";
 }
 
-void Platform::clear() { 
-  std::cout << "\033[2J\033[1;1H";
-}
+void Platform::clear() { std::cout << "\033[2J\033[1;1H"; }
