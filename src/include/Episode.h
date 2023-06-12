@@ -10,7 +10,7 @@ private:
   int episodeNumber;
 
 public:
-  Episode(int seasonNumber, int episodeNumber, Video video);
+  Episode(Video video, int seasonNumber, int episodeNumber);
   std::string toString();
 };
 

@@ -1,12 +1,14 @@
 #include "./include/Platform.h"
+#include "./include/Video.h"
+#include "./include/Movie.h"
+#include "./include/Episode.h"
+#include "./include/Content.h"
 
 #include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
-
-#include "./include/Video.h"
-#include "./include/Movie.h"
+#include <unordered_map>
 
 static const std::string TITLE = "Plataforma de Streaming";
 static const std::string DEFAULT_DATA_FILE_PATH = "../DatosPeliculas.csv";
@@ -97,6 +99,7 @@ void Platform::loadFile() {
         []() { std::cout << "\033[31mError al abrir el archivo\033[0m\n\n"; },
         this->fileLoadOptions, this->FILE_LOAD_OPTIONS_SIZE);
   } else {
+    std::unordered_map<std::string, std::unordered_map<int, std::vector<Episode>>> series;
     std::string line;
     std::getline(file, line);
 
@@ -117,14 +120,56 @@ void Platform::loadFile() {
         line.erase(0, pos + delimiter.length());
       }
 
-      if (row.size() == 6) {
-        int duration = std::stod(row[2]);
-        double rating = std::stoi(row[4]);
+      row.push_back(line);
 
-        Movie movie(row[0], row[1], duration, row[3], rating, row[5]);
+      const std::string id = row[0];
+      const std::string name = row[1];
+      const std::string durationStr = row[2];
+      const std::string genre = row[3];
+      const std::string ratingStr = row[4];
+      const std::string releaseDate = row[5];
+
+      int duration = std::stod(durationStr);
+      double rating = std::stoi(ratingStr);
+
+      if (row.size() == 7) {
+        Movie movie(id, name, duration, genre, rating, releaseDate);
         std::cout << movie.toString() << std::endl;
-      } else if (row.size() == 9) {
-        std::cout << "Serie" << std::endl;
+      } else if (row.size() == 10) {
+        const std::string idEpisode = row[6];
+        const std::string nameEpisode = row[7];
+        const std::string seasonNumberStr = row[8];
+        const std::string episodeNumberStr = row[9];
+
+        int seasonNumber = std::stoi(seasonNumberStr);
+        int episodeNumber = std::stoi(episodeNumberStr);
+
+        Video video(idEpisode, nameEpisode, duration, genre, rating, releaseDate);
+        Episode episode(video, seasonNumber, episodeNumber);
+
+        if (series.find(name) == series.end()) {
+          std::unordered_map<int, std::vector<Episode>> seasons;
+          std::vector<Episode> episodes;
+
+          episodes.push_back(episode);
+
+          seasons[seasonNumber] = episodes;
+          series[name] = seasons;
+        } else {
+          series[name][seasonNumber].push_back(episode);
+        }
+      }
+    }
+
+    for (auto it = series.begin(); it != series.end(); ++it) {
+      std::cout << it->first << std::endl;
+
+      for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
+        std::cout << "  " << it2->first << std::endl;
+
+        for (auto it3 = it2->second.begin(); it3 != it2->second.end(); ++it3) {
+          std::cout << "    " << it3->toString() << std::endl;
+        }
       }
     }
 

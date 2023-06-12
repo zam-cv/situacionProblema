@@ -12,6 +12,7 @@ protected:
 public:
   Content(std::string id, std::string name);
   virtual std::string toString() = 0;
+  virtual ~Content();
 };
 
 #endif
