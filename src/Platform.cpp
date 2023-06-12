@@ -34,6 +34,11 @@ Platform::Platform() {
       {"Cargar archivo", [&]() { this->loadFile(); }},
       {"Regresar al Menu", [&]() { this->menu(); }}};
 
+  this->moviesDict = std::unordered_map<std::string, std::vector<Movie *>>();
+  this->seriesDict = std::unordered_map<std::string, std::vector<Serie *>>();
+  this->episodesDict =
+      std::unordered_map<std::string, std::vector<Episode *>>();
+
   this->isInvalid = false;
   this->uploadedFiles = false;
 }
@@ -138,7 +143,7 @@ void Platform::loadFile() {
       row.push_back(line);
 
       const std::string id = row[0];
-      const std::string name = String::trim(row[1]);
+      std::string name = String::trim(row[1]);
       const std::string durationStr = row[2];
       const std::vector<std::string> genres =
           String::split(String::trim(row[3]), '&');
@@ -148,9 +153,20 @@ void Platform::loadFile() {
       int duration = std::stod(durationStr);
       double rating = std::stoi(ratingStr);
 
+      std::vector<std::string> words = String::split(name, ' ');
+
       if (row.size() == 7) {
-        contents.push_back(
-            new Movie(id, name, duration, genres, rating, releaseDate));
+        Movie *movie =
+            new Movie(id, name, duration, genres, rating, releaseDate);
+        contents.push_back(movie);
+
+        if (words.size() > 1) {
+          for (std::string word : words) {
+            moviesDict[word].push_back(movie);
+          }
+        } else {
+          moviesDict[name].push_back(movie);
+        }
       } else if (row.size() == 10) {
         const std::string idEpisode = row[6];
         const std::string nameEpisode = row[7];
@@ -198,15 +214,18 @@ void Platform::loadFile() {
       }
     }
 
+    std::cout << std::endl;
+
     for (Content *content : contents) {
       std::cout << content->toString() << std::endl;
     }
 
+    this->uploadedFiles = true;
     std::cin.ignore();
   }
 }
 
-void Platform::checkUploadedFiles() {
+void Platform::checkUploadedFiles(std::function<void()> next) {
   if (this->uploadedFiles)
     return;
 
@@ -218,31 +237,31 @@ void Platform::checkUploadedFiles() {
 }
 
 void Platform::searchVideo() {
-  this->checkUploadedFiles();
-
-  std::cout << "Buscar video\n\n";
-  std::cin.ignore();
+  this->checkUploadedFiles([]() {
+    std::cout << "Buscar video\n\n";
+    std::cin.ignore();
+  });
 }
 
 void Platform::searchSerie() {
-  this->checkUploadedFiles();
-
-  std::cout << "Buscar serie\n\n";
-  std::cin.ignore();
+  this->checkUploadedFiles([]() {
+    std::cout << "Buscar serie\n\n";
+    std::cin.ignore();
+  });
 }
 
 void Platform::searchMovie() {
-  this->checkUploadedFiles();
-
-  std::cout << "Buscar pelicula\n\n";
-  std::cin.ignore();
+  this->checkUploadedFiles([]() {
+    std::cout << "Buscar pelicula\n\n";
+    std::cin.ignore();
+  });
 }
 
 void Platform::rateVideo() {
-  this->checkUploadedFiles();
-
-  std::cout << "Calificar video\n\n";
-  std::cin.ignore();
+  this->checkUploadedFiles([]() {
+    std::cout << "Calificar video\n\n";
+    std::cin.ignore();
+  });
 }
 
 void Platform::showTitle() {
