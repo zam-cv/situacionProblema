@@ -76,8 +76,7 @@ void Platform::showOptions(std::function<void()> showMessage, Option *handlers,
         break;
       }
     } catch (std::invalid_argument const &e) {
-    } catch (std::out_of_range const &e) {
-    }
+    } catch (std::out_of_range const &e) { }
 
     this->isInvalid = true;
   }
@@ -88,14 +87,14 @@ void Platform::showOptions(std::function<void()> showMessage, Option *handlers,
 }
 
 void Platform::menu() {
-  this->showOptions([]() { std::cout << "Menu\n\n"; }, this->menuOptions,
+  this->showOptions([]() { std::cout << Font::bold("Menu\n\n"); }, this->menuOptions,
                     this->MENU_OPTIONS_SIZE);
 }
 
 void Platform::loadFile() {
   std::string path;
 
-  std::cout << "Carga del archivo de datos\n\n";
+  std::cout << Font::bold("Carga del archivo de datos") << "\n\n";
   std::cout << "Archivo a usar si se presiona enter: " << DEFAULT_DATA_FILE_PATH
             << std::endl;
   std::cout << "Ingrese la direccion del archivo: ";
@@ -116,7 +115,6 @@ void Platform::loadFile() {
         },
         this->fileLoadOptions, this->FILE_LOAD_OPTIONS_SIZE);
   } else {
-    std::vector<Content *> contents;
     std::unordered_map<std::string,
                        std::pair<Serie *, std::unordered_map<int, Season *>>>
         series;
@@ -153,20 +151,13 @@ void Platform::loadFile() {
       int duration = std::stod(durationStr);
       double rating = std::stoi(ratingStr);
 
-      std::vector<std::string> words = String::split(name, ' ');
+      std::vector<std::string> words =
+          String::split(String::toLower(name), ' ');
 
       if (row.size() == 7) {
         Movie *movie =
             new Movie(id, name, duration, genres, rating, releaseDate);
-        contents.push_back(movie);
 
-        if (words.size() > 1) {
-          for (std::string word : words) {
-            moviesDict[word].push_back(movie);
-          }
-        } else {
-          moviesDict[name].push_back(movie);
-        }
       } else if (row.size() == 10) {
         const std::string idEpisode = row[6];
         const std::string nameEpisode = row[7];
@@ -190,12 +181,21 @@ void Platform::loadFile() {
           seasons.push_back(season);
 
           Serie *serie = new Serie(id, name, genres, seasons);
-          contents.push_back(serie);
 
           std::unordered_map<int, Season *> seasonsHash;
           seasonsHash[seasonNumber] = season;
 
           series[name] = {serie, seasonsHash};
+
+          if (words.size() > 1) {
+            for (std::string word : words) {
+              if (word.size() > 2) {
+                seriesDict[word].push_back(serie);
+              }
+            }
+          } else {
+            seriesDict[name].push_back(serie);
+          }
         } else {
           if (series[name].second.find(seasonNumber) ==
               series[name].second.end()) {
@@ -216,9 +216,8 @@ void Platform::loadFile() {
 
     std::cout << std::endl;
 
-    for (Content *content : contents) {
-      std::cout << content->toString() << std::endl;
-    }
+    std::cout << Color::green("Los datos se han cargado correctamente");
+    std::cout << "\nPresione enter para regresar al menu...";
 
     this->uploadedFiles = true;
     std::cin.ignore();
@@ -226,8 +225,10 @@ void Platform::loadFile() {
 }
 
 void Platform::checkUploadedFiles(std::function<void()> next) {
-  if (this->uploadedFiles)
+  if (this->uploadedFiles) {
+    next();
     return;
+  }
 
   this->showOptions(
       []() {
@@ -244,15 +245,57 @@ void Platform::searchVideo() {
 }
 
 void Platform::searchSerie() {
-  this->checkUploadedFiles([]() {
-    std::cout << "Buscar serie\n\n";
+  this->checkUploadedFiles([&]() {
+    std::string name;
+
+    std::cout << Font::bold("Buscar serie") << "\n\n";
+    std::cout << "Ingrese el nombre de la serie: ";
+
     std::cin.ignore();
+    std::getline(std::cin, name);
+
+    std::unordered_map<std::string, std::pair<int, Serie*>> coincidences;
+    std::vector<std::string> words = String::split(String::toLower(name), ' ');
+
+    for (std::string word : words) {
+      if (this->seriesDict.find(word) != this->seriesDict.end()) {
+        for (Serie *serie : seriesDict[word]) {
+          if (coincidences.find(serie->getName()) == coincidences.end()) {
+            coincidences[serie->getName()] = {1, serie};
+          } else {
+            coincidences[serie->getName()].first++;
+          }
+        }
+      }
+    }
+
+    if (coincidences.size() > 0) {
+      Serie *serie = nullptr;
+      int max = 0;
+
+      for (auto const &coincidence : coincidences) {
+        if (coincidence.second.first > max) {
+          max = coincidence.second.first;
+          serie = coincidence.second.second;
+        }
+      }
+
+      std::cout << std::endl << serie->toString() << "\n";
+    } else {
+      std::cout << std::endl << Color::yellow("No se encontraron coincidencias\n");
+    }
+
+    std::cout << "\nPresione enter para regresar al menu...";
+    std::cin.ignore();
+
+    this->menu();
   });
 }
 
 void Platform::searchMovie() {
   this->checkUploadedFiles([]() {
     std::cout << "Buscar pelicula\n\n";
+
     std::cin.ignore();
   });
 }
@@ -266,8 +309,8 @@ void Platform::rateVideo() {
 
 void Platform::showTitle() {
   this->clear();
-  std::cout << Color::blue("====== ") << TITLE << " " << Color::blue("====== ")
-            << "\n\n";
+  std::cout << Color::blue("====== ") << Font::bold(TITLE) << " "
+            << Color::blue("====== ") << "\n\n";
 }
 
 void Platform::clear() { std::cout << "\033[2J\033[1;1H"; }

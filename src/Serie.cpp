@@ -29,3 +29,5 @@ std::string Serie::toString() {
 }
 
 void Serie::pushSeason(Season *season) { this->seasons.push_back(season); }
+
+std::string Serie::getName() { return this->name; }

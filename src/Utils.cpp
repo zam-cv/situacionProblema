@@ -1,5 +1,6 @@
 #include "./include/Utils.h"
 #include <string>
+#include <cctype>
 
 namespace Font {
   std::string bold(std::string text) {
@@ -90,6 +91,16 @@ namespace String {
       if (i != text.size() - 1) {
         result += delimiter;
       }
+    }
+
+    return result;
+  }
+
+  std::string toLower(std::string text) {
+    std::string result = "";
+
+    for (int i = 0; i < text.size(); i++) {
+      result += std::tolower(text[i]);
     }
 
     return result;

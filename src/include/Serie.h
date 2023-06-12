@@ -17,6 +17,7 @@ public:
         std::vector<Season *> seasons);
   std::string toString() override;
   void pushSeason(Season *season);
+  std::string getName();
 };
 
 #endif

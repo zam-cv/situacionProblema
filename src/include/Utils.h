@@ -24,6 +24,7 @@ namespace String {
   std::string trim(std::string text);
   std::vector<std::string> split(std::string text, char delimiter);
   std::string join(std::vector<std::string> text, char delimiter);
+  std::string toLower(std::string text);
 }
 
 #endif
