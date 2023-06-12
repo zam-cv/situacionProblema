@@ -1,13 +1,16 @@
 #include "./include/Video.h"
 #include "./include/Content.h"
 
-#include <iostream>
-#include <string>
-#include <iomanip>
-#include <sstream>
+#include "./include/Utils.h"
 
-Video::Video(std::string id, std::string name, int duration, std::string genres,
-             double rating, std::string releaseDate)
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <string>
+
+Video::Video(std::string id, std::string name, int duration,
+             std::vector<std::string> genres, double rating,
+             std::string releaseDate)
     : Content(id, name) {
   this->releaseDate = releaseDate;
   this->genres = genres;
@@ -17,9 +20,11 @@ Video::Video(std::string id, std::string name, int duration, std::string genres,
 
 std::string Video::toString() {
   std::stringstream stream;
-  stream << std::fixed << std::setprecision(2) << this->rating;
+  stream << std::fixed << std::setprecision(1) << this->rating;
   std::string ratingStr = stream.str();
 
-  return this->name + " (" + this->releaseDate + ") " + this->genres + " " +
-         ratingStr + " " + std::to_string(this->duration) + " min";
+  return Font::bold(this->name) + " " + Color::gray(this->releaseDate) +
+         Color::magenta(" • ") + Font::italic(String::join(this->genres, ' ')) +
+         Color::magenta(" • ") + ratingStr + Color::magenta(" • ") +
+         std::to_string(this->duration) + " min";
 }

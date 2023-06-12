@@ -1,14 +1,18 @@
 #include "./include/Platform.h"
-#include "./include/Video.h"
-#include "./include/Movie.h"
-#include "./include/Episode.h"
 #include "./include/Content.h"
+#include "./include/Episode.h"
+#include "./include/Movie.h"
+#include "./include/Season.h"
+#include "./include/Serie.h"
+#include "./include/Video.h"
+
+#include "./include/Utils.h"
 
 #include <fstream>
 #include <iostream>
 #include <string>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 static const std::string TITLE = "Plataforma de Streaming";
 static const std::string DEFAULT_DATA_FILE_PATH = "../DatosPeliculas.csv";
@@ -36,7 +40,8 @@ void Platform::run() {
   }
 }
 
-void Platform::showOptions(std::function<void()> showMessage, Option *handlers, int size) {
+void Platform::showOptions(std::function<void()> showMessage, Option *handlers,
+                           int size) {
   std::string optionStr;
   int option;
 
@@ -49,7 +54,7 @@ void Platform::showOptions(std::function<void()> showMessage, Option *handlers, 
     }
 
     std::cout << std::endl;
-    std::cout << (this->isInvalid ? "\033[31m❯ \033[0m" : "❯ ");
+    std::cout << (this->isInvalid ? Color::red("❯ ") : "❯ ");
     std::cin >> optionStr;
 
     try {
@@ -61,7 +66,8 @@ void Platform::showOptions(std::function<void()> showMessage, Option *handlers, 
         break;
       }
     } catch (std::invalid_argument const &e) {
-    } catch (std::out_of_range const &e) {}
+    } catch (std::out_of_range const &e) {
+    }
 
     this->isInvalid = true;
   }
@@ -72,9 +78,8 @@ void Platform::showOptions(std::function<void()> showMessage, Option *handlers, 
 }
 
 void Platform::menu() {
-  this->showOptions([]() { 
-    std::cout << "Menu\n\n"; 
-  }, this->menuOptions, this->MENU_OPTIONS_SIZE);
+  this->showOptions([]() { std::cout << "Menu\n\n"; }, this->menuOptions,
+                    this->MENU_OPTIONS_SIZE);
 }
 
 void Platform::loadFile() {
@@ -96,10 +101,13 @@ void Platform::loadFile() {
 
   if (!file.is_open()) {
     this->showOptions(
-        []() { std::cout << "\033[31mError al abrir el archivo\033[0m\n\n"; },
+        []() { std::cout << Color::red("Error al abrir el archivo") << "\n\n"; },
         this->fileLoadOptions, this->FILE_LOAD_OPTIONS_SIZE);
   } else {
-    std::unordered_map<std::string, std::unordered_map<int, std::vector<Episode>>> series;
+    std::vector<Content *> contents;
+    std::unordered_map<std::string,
+                       std::pair<Serie *, std::unordered_map<int, Season *>>>
+        series;
     std::string line;
     std::getline(file, line);
 
@@ -123,9 +131,9 @@ void Platform::loadFile() {
       row.push_back(line);
 
       const std::string id = row[0];
-      const std::string name = row[1];
+      const std::string name = String::trim(row[1]);
       const std::string durationStr = row[2];
-      const std::string genre = row[3];
+      const std::vector<std::string> genres = String::split(String::trim(row[3]), '&');
       const std::string ratingStr = row[4];
       const std::string releaseDate = row[5];
 
@@ -133,8 +141,8 @@ void Platform::loadFile() {
       double rating = std::stoi(ratingStr);
 
       if (row.size() == 7) {
-        Movie movie(id, name, duration, genre, rating, releaseDate);
-        std::cout << movie.toString() << std::endl;
+        contents.push_back(
+            new Movie(id, name, duration, genres, rating, releaseDate));
       } else if (row.size() == 10) {
         const std::string idEpisode = row[6];
         const std::string nameEpisode = row[7];
@@ -144,33 +152,46 @@ void Platform::loadFile() {
         int seasonNumber = std::stoi(seasonNumberStr);
         int episodeNumber = std::stoi(episodeNumberStr);
 
-        Video video(idEpisode, nameEpisode, duration, genre, rating, releaseDate);
+        Video video(idEpisode, nameEpisode, duration, genres, rating,
+                    releaseDate);
         Episode episode(video, seasonNumber, episodeNumber);
 
         if (series.find(name) == series.end()) {
-          std::unordered_map<int, std::vector<Episode>> seasons;
+          std::vector<Season *> seasons;
           std::vector<Episode> episodes;
 
           episodes.push_back(episode);
 
-          seasons[seasonNumber] = episodes;
-          series[name] = seasons;
+          Season *season = new Season(episodes, seasonNumber);
+          seasons.push_back(season);
+
+          Serie *serie = new Serie(id, name, genres, seasons);
+          contents.push_back(serie);
+
+          std::unordered_map<int, Season *> seasonsHash;
+          seasonsHash[seasonNumber] = season;
+
+          series[name] = {serie, seasonsHash};
         } else {
-          series[name][seasonNumber].push_back(episode);
+          if (series[name].second.find(seasonNumber) ==
+              series[name].second.end()) {
+            std::vector<Episode> episodes;
+
+            episodes.push_back(episode);
+
+            Season *season = new Season(episodes, seasonNumber);
+
+            series[name].second[seasonNumber] = season;
+            series[name].first->pushSeason(season);
+          } else {
+            series[name].second[seasonNumber]->pushEpisode(episode);
+          }
         }
       }
     }
 
-    for (auto it = series.begin(); it != series.end(); ++it) {
-      std::cout << it->first << std::endl;
-
-      for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
-        std::cout << "  " << it2->first << std::endl;
-
-        for (auto it3 = it2->second.begin(); it3 != it2->second.end(); ++it3) {
-          std::cout << "    " << it3->toString() << std::endl;
-        }
-      }
+    for (Content *content : contents) {
+      std::cout << content->toString() << std::endl;
     }
 
     std::cin.ignore();
@@ -199,8 +220,10 @@ void Platform::rateVideo() {
 
 void Platform::showTitle() {
   this->clear();
-  std::cout << "\033[34m======\033[0m " << TITLE
-            << " \033[34m======\033[0m\n\n";
+  std::cout << Color::blue("====== ") << TITLE << " "
+            << Color::blue("====== ") << "\n\n";
 }
 
-void Platform::clear() { std::system("clear"); }
+void Platform::clear() { 
+  std::cout << "\033[2J\033[1;1H";
+}

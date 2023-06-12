@@ -12,9 +12,8 @@ private:
   std::vector<Episode> episodes;
 
 public:
+  Season();
   Season(std::vector<Episode> episodes, int seasonNumber);
-  std::vector<Episode> getEpisodes();
-  int getSeasonNumber();
   void pushEpisode(Episode episode);
   std::string toString();
 };
