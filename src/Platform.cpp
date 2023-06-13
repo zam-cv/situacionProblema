@@ -10,6 +10,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <set>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -34,10 +35,11 @@ Platform::Platform() {
       {"Cargar archivo", [&]() { this->loadFile(); }},
       {"Regresar al Menu", [&]() { this->menu(); }}};
 
-  this->moviesDict = std::unordered_map<std::string, std::vector<Movie *>>();
+  this->genresVec = std::vector<std::string>();
+
   this->seriesDict = std::unordered_map<std::string, std::vector<Serie *>>();
-  this->episodesDict =
-      std::unordered_map<std::string, std::vector<Episode *>>();
+  this->videos = std::vector<Video *>();
+  this->movies = std::vector<Movie *>();
 
   this->isInvalid = false;
   this->uploadedFiles = false;
@@ -67,16 +69,13 @@ void Platform::showOptions(std::function<void()> showMessage, Option *handlers,
     std::cout << (this->isInvalid ? Color::red("❯ ") : "❯ ");
     std::cin >> optionStr;
 
-    try {
-      int optionInt = std::stoi(optionStr);
-      optionInt--;
+    int optionInt = String::toInt(optionStr);
+    optionInt--;
 
-      if (optionInt >= 0 && optionInt < size) {
-        option = optionInt;
-        break;
-      }
-    } catch (std::invalid_argument const &e) {
-    } catch (std::out_of_range const &e) { }
+    if (optionInt >= 0 && optionInt < size) {
+      option = optionInt;
+      break;
+    }
 
     this->isInvalid = true;
   }
@@ -87,8 +86,8 @@ void Platform::showOptions(std::function<void()> showMessage, Option *handlers,
 }
 
 void Platform::menu() {
-  this->showOptions([]() { std::cout << Font::bold("Menu\n\n"); }, this->menuOptions,
-                    this->MENU_OPTIONS_SIZE);
+  this->showOptions([]() { std::cout << Font::bold("Menu\n\n"); },
+                    this->menuOptions, this->MENU_OPTIONS_SIZE);
 }
 
 void Platform::loadFile() {
@@ -115,6 +114,7 @@ void Platform::loadFile() {
         },
         this->fileLoadOptions, this->FILE_LOAD_OPTIONS_SIZE);
   } else {
+    std::set<std::string> genresSet;
     std::unordered_map<std::string,
                        std::pair<Serie *, std::unordered_map<int, Season *>>>
         series;
@@ -154,10 +154,14 @@ void Platform::loadFile() {
       std::vector<std::string> words =
           String::split(String::toLower(name), ' ');
 
+      for (std::string genre : genres) {
+        genresSet.insert(genre);
+      }
+
       if (row.size() == 7) {
         Movie *movie =
             new Movie(id, name, duration, genres, rating, releaseDate);
-
+        movies.push_back(movie);
       } else if (row.size() == 10) {
         const std::string idEpisode = row[6];
         const std::string nameEpisode = row[7];
@@ -169,11 +173,11 @@ void Platform::loadFile() {
 
         Video video(idEpisode, nameEpisode, duration, genres, rating,
                     releaseDate);
-        Episode episode(video, seasonNumber, episodeNumber);
+        Episode *episode = new Episode(video, seasonNumber, episodeNumber);
 
         if (series.find(name) == series.end()) {
           std::vector<Season *> seasons;
-          std::vector<Episode> episodes;
+          std::vector<Episode *> episodes;
 
           episodes.push_back(episode);
 
@@ -199,7 +203,7 @@ void Platform::loadFile() {
         } else {
           if (series[name].second.find(seasonNumber) ==
               series[name].second.end()) {
-            std::vector<Episode> episodes;
+            std::vector<Episode *> episodes;
 
             episodes.push_back(episode);
 
@@ -213,6 +217,13 @@ void Platform::loadFile() {
         }
       }
     }
+
+    this->genresVec =
+        std::vector<std::string>(genresSet.begin(), genresSet.end());
+
+    std::sort(this->movies.begin(), this->movies.end(), [](Video *a, Video *b) {
+      return a->getRating() < b->getRating();
+    });
 
     std::cout << std::endl;
 
@@ -254,7 +265,7 @@ void Platform::searchSerie() {
     std::cin.ignore();
     std::getline(std::cin, name);
 
-    std::unordered_map<std::string, std::pair<int, Serie*>> coincidences;
+    std::unordered_map<std::string, std::pair<int, Serie *>> coincidences;
     std::vector<std::string> words = String::split(String::toLower(name), ' ');
 
     for (std::string word : words) {
@@ -282,7 +293,8 @@ void Platform::searchSerie() {
 
       std::cout << std::endl << serie->toString() << "\n";
     } else {
-      std::cout << std::endl << Color::yellow("No se encontraron coincidencias\n");
+      std::cout << std::endl
+                << Color::yellow("No se encontraron coincidencias\n");
     }
 
     std::cout << "\nPresione enter para regresar al menu...";
@@ -293,10 +305,50 @@ void Platform::searchSerie() {
 }
 
 void Platform::searchMovie() {
-  this->checkUploadedFiles([]() {
-    std::cout << "Buscar pelicula\n\n";
+  this->checkUploadedFiles([&]() {
+    std::string ratingStr;
+
+    std::cout << Font::bold("Buscar peliculas") << "\n\n";
+    std::cout
+        << "Se daran las peliculas cuya calificación sea mayor a la ingresada"
+        << std::endl;
+    std::cout << "Ingrese la calificación: ";
 
     std::cin.ignore();
+    std::getline(std::cin, ratingStr);
+
+    double rating = String::toDouble(ratingStr);
+
+    int start = 0;
+    int end = this->movies.size() - 1;
+
+    while (start <= end) {
+      int mid = (start + end) / 2;
+
+      if (this->movies[mid]->getRating() == rating) {
+        start = mid;
+        break;
+      } else if (this->movies[mid]->getRating() > rating) {
+        start = mid + 1;
+      } else {
+        end = mid - 1;
+      }
+    }
+
+    std::cout << std::endl;
+
+    if (start <= this->movies.size() - 1) {
+      for (int i = this->movies.size() - 1; i >= start; i--) {
+        std::cout << this->movies[i]->toString() << "\n";
+      }
+    } else {
+      std::cout << Color::yellow("No se encontraron coincidencias\n");
+    }
+
+    std::cout << "\nPresione enter para regresar al menu...";
+    std::cin.ignore();
+
+    this->menu();
   });
 }
 

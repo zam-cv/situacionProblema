@@ -11,18 +11,18 @@ Season::Season() {
   this->episodes = {};
 }
 
-Season::Season(std::vector<Episode> episodes, int seasonNumber) {
+Season::Season(std::vector<Episode *> episodes, int seasonNumber) {
   this->seasonNumber = seasonNumber;
   this->episodes = episodes;
 }
 
-void Season::pushEpisode(Episode episode) { this->episodes.push_back(episode); }
+void Season::pushEpisode(Episode *episode) { this->episodes.push_back(episode); }
 
 std::string Season::toString() {
   std::string episodes = "";
 
   for (int i = 0; i < this->episodes.size(); i++) {
-    episodes += this->episodes[i].toString();
+    episodes += this->episodes[i]->toString();
 
     if (i != this->episodes.size() - 1) {
       episodes += "\n";

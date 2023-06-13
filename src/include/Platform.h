@@ -24,9 +24,11 @@ private:
   Option *fileLoadOptions;
   Option *loadErrorOptions;
 
-  std::unordered_map<std::string, std::vector<Movie*>> moviesDict;
+  std::vector<std::string> genresVec;
+
+  std::vector<Video*> videos;
+  std::vector<Movie*> movies;
   std::unordered_map<std::string, std::vector<Serie*>> seriesDict;
-  std::unordered_map<std::string, std::vector<Episode*>> episodesDict;
 
   bool isInvalid;
   bool uploadedFiles;

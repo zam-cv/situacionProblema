@@ -105,4 +105,24 @@ namespace String {
 
     return result;
   }
+
+  int toInt(std::string text) {
+    try {
+      return std::stoi(text);
+    } catch (std::invalid_argument const &e) {
+      return 0;
+    } catch (std::out_of_range const &e) {
+      return 0;
+    }
+  }
+
+  double toDouble(std::string text) {
+    try {
+      return std::stod(text);
+    } catch (std::invalid_argument const &e) {
+      return 0;
+    } catch (std::out_of_range const &e) { 
+      return 0;
+    }
+  }
 }

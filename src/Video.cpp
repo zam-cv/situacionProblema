@@ -28,3 +28,5 @@ std::string Video::toString() {
          Color::magenta(" • ") + ratingStr + Color::magenta(" • ") +
          std::to_string(this->duration) + " min";
 }
+
+double Video::getRating() { return this->rating; }

@@ -18,6 +18,7 @@ public:
         std::vector<std::string> genres, double rating,
         std::string releaseDate);
   std::string toString() override;
+  double getRating();
 };
 
 #endif

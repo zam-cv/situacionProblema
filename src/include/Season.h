@@ -9,12 +9,12 @@
 class Season {
 private:
   int seasonNumber;
-  std::vector<Episode> episodes;
+  std::vector<Episode *> episodes;
 
 public:
   Season();
-  Season(std::vector<Episode> episodes, int seasonNumber);
-  void pushEpisode(Episode episode);
+  Season(std::vector<Episode *> episodes, int seasonNumber);
+  void pushEpisode(Episode *episode);
   std::string toString();
 };
 
