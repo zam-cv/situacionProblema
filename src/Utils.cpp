@@ -1,6 +1,8 @@
 #include "./include/Utils.h"
 #include <string>
 #include <cctype>
+#include <iomanip>
+#include <sstream>
 
 namespace Font {
   std::string bold(std::string text) {
@@ -124,5 +126,13 @@ namespace String {
     } catch (std::out_of_range const &e) { 
       return 0;
     }
+  }
+}
+
+namespace Number {
+  std::string withPrecision(double number, int precision) {
+    std::stringstream stream;
+    stream << std::fixed << std::setprecision(precision) << number;
+    return stream.str();
   }
 }

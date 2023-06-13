@@ -5,4 +5,6 @@ Content::Content(std::string id, std::string name) {
   this->name = name;
 }
 
+std::string Content::getName() { return this->name; }
+
 Content::~Content() { }

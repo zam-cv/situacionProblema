@@ -29,4 +29,8 @@ namespace String {
   double toDouble(std::string text);
 }
 
+namespace Number {
+  std::string withPrecision(double number, int precision);
+}
+
 #endif

@@ -11,6 +11,8 @@ protected:
 
 public:
   Content(std::string id, std::string name);
+  std::string getName();
+  virtual double getRating() = 0;
   virtual std::string toString() = 0;
   virtual ~Content();
 };

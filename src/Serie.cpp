@@ -30,4 +30,12 @@ std::string Serie::toString() {
 
 void Serie::pushSeason(Season *season) { this->seasons.push_back(season); }
 
-std::string Serie::getName() { return this->name; }
+double Serie::getRating() {
+  double rating = 0;
+
+  for (int i = 0; i < this->seasons.size(); i++) {
+    rating += this->seasons[i]->getRating();
+  }
+
+  return rating / this->seasons.size();
+}

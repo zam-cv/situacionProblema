@@ -33,3 +33,13 @@ std::string Season::toString() {
          Font::bold(" Temporada " + std::to_string(this->seasonNumber)) + "\n" +
          episodes;
 }
+
+double Season::getRating() {
+  double rating = 0;
+
+  for (int i = 0; i < this->episodes.size(); i++) {
+    rating += this->episodes[i]->getRating();
+  }
+
+  return rating / this->episodes.size();
+}

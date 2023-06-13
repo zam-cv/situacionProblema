@@ -16,8 +16,8 @@ public:
   Serie(std::string id, std::string name, std::vector<std::string> genres,
         std::vector<Season *> seasons);
   std::string toString() override;
+  double getRating() override;
   void pushSeason(Season *season);
-  std::string getName();
 };
 
 #endif

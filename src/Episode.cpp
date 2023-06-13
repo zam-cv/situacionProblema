@@ -3,8 +3,6 @@
 
 #include "./include/Utils.h"
 
-#include <iomanip>
-#include <sstream>
 #include <string>
 
 Episode::Episode(Video video, int seasonNumber, int episodeNumber)
@@ -14,11 +12,8 @@ Episode::Episode(Video video, int seasonNumber, int episodeNumber)
 }
 
 std::string Episode::toString() {
-  std::stringstream stream;
-  stream << std::fixed << std::setprecision(1) << this->rating;
-  std::string ratingStr = stream.str();
-
   return Color::blue("    ⦿ ") + Font::bold(this->name) + " " +
-         Color::gray(this->releaseDate) + Color::magenta(" • ") + ratingStr +
-         Color::magenta(" • ") + std::to_string(this->duration) + " min";
+         Color::gray(this->releaseDate) + Color::magenta(" • ") +
+         Number::withPrecision(this->rating, 1) + Color::magenta(" • ") +
+         std::to_string(this->duration) + " min";
 }

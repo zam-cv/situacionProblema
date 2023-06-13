@@ -16,6 +16,7 @@ public:
   Season(std::vector<Episode *> episodes, int seasonNumber);
   void pushEpisode(Episode *episode);
   std::string toString();
+  double getRating();
 };
 
 #endif

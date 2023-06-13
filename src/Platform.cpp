@@ -15,29 +15,33 @@
 #include <unordered_map>
 #include <vector>
 
+static const int LOAD_ERROR_OPTIONS_SIZE = 2;
+static const int MENU_OPTIONS_SIZE = 7;
+static const int FILE_LOAD_OPTIONS_SIZE = 2;
 static const std::string TITLE = "Plataforma de Streaming";
 static const std::string DEFAULT_DATA_FILE_PATH = "../DatosPeliculas.csv";
 
 Platform::Platform() {
-  this->menuOptions = new Option[this->MENU_OPTIONS_SIZE]{
+  this->menuOptions = new Option[MENU_OPTIONS_SIZE]{
       {"Cargar archivo de datos", [&]() { this->loadFile(); }},
       {"Buscar video", [&]() { this->searchVideo(); }},
       {"Buscar serie", [&]() { this->searchSerie(); }},
       {"Buscar pelicula", [&]() { this->searchMovie(); }},
       {"Calificar video", [&]() { this->rateVideo(); }},
+      {"Promedio de la serie", [&]() { this->seriesAverage(); }},
       {"Salir", [&]() { exit(0); }}};
 
-  this->fileLoadOptions = new Option[this->FILE_LOAD_OPTIONS_SIZE]{
+  this->fileLoadOptions = new Option[FILE_LOAD_OPTIONS_SIZE]{
       {"Intentar nuevamente", [&]() { this->loadFile(); }},
       {"Regresar al Menu", [&]() { this->menu(); }}};
 
-  this->loadErrorOptions = new Option[this->LOAD_ERROR_OPTIONS_SIZE]{
+  this->loadErrorOptions = new Option[LOAD_ERROR_OPTIONS_SIZE]{
       {"Cargar archivo", [&]() { this->loadFile(); }},
       {"Regresar al Menu", [&]() { this->menu(); }}};
 
   this->genresVec = std::vector<std::string>();
 
-  this->seriesDict = std::unordered_map<std::string, std::vector<Serie *>>();
+  this->seriesDict = ContentsDict();
   this->videos = std::vector<Video *>();
   this->movies = std::vector<Movie *>();
 
@@ -87,7 +91,7 @@ void Platform::showOptions(std::function<void()> showMessage, Option *handlers,
 
 void Platform::menu() {
   this->showOptions([]() { std::cout << Font::bold("Menu\n\n"); },
-                    this->menuOptions, this->MENU_OPTIONS_SIZE);
+                    this->menuOptions, MENU_OPTIONS_SIZE);
 }
 
 void Platform::loadFile() {
@@ -112,7 +116,7 @@ void Platform::loadFile() {
         []() {
           std::cout << Color::red("Error al abrir el archivo") << "\n\n";
         },
-        this->fileLoadOptions, this->FILE_LOAD_OPTIONS_SIZE);
+        this->fileLoadOptions, FILE_LOAD_OPTIONS_SIZE);
   } else {
     std::set<std::string> genresSet;
     std::unordered_map<std::string,
@@ -245,7 +249,39 @@ void Platform::checkUploadedFiles(std::function<void()> next) {
       []() {
         std::cout << Color::red("No se ha cargado ningun archivo") << "\n\n";
       },
-      this->loadErrorOptions, this->LOAD_ERROR_OPTIONS_SIZE);
+      this->loadErrorOptions, LOAD_ERROR_OPTIONS_SIZE);
+}
+
+Content *Platform::search(ContentsDict *dict, std::string name) {
+  std::unordered_map<std::string, std::pair<int, Content *>> coincidences;
+  std::vector<std::string> words = String::split(String::toLower(name), ' ');
+
+  for (std::string word : words) {
+    if (dict->find(word) != dict->end()) {
+      for (Content *content : (*dict)[word]) {
+        if (coincidences.find(content->getName()) == coincidences.end()) {
+          coincidences[content->getName()] = {1, content};
+        } else {
+          coincidences[content->getName()].first++;
+        }
+      }
+    }
+  }
+
+  Content *content = nullptr;
+
+  if (coincidences.size() > 0) {
+    int max = 0;
+
+    for (auto const &coincidence : coincidences) {
+      if (coincidence.second.first > max) {
+        max = coincidence.second.first;
+        content = coincidence.second.second;
+      }
+    }
+  }
+
+  return content;
 }
 
 void Platform::searchVideo() {
@@ -265,36 +301,14 @@ void Platform::searchSerie() {
     std::cin.ignore();
     std::getline(std::cin, name);
 
-    std::unordered_map<std::string, std::pair<int, Serie *>> coincidences;
-    std::vector<std::string> words = String::split(String::toLower(name), ' ');
+    Content *content = this->search(&this->seriesDict, name);
 
-    for (std::string word : words) {
-      if (this->seriesDict.find(word) != this->seriesDict.end()) {
-        for (Serie *serie : seriesDict[word]) {
-          if (coincidences.find(serie->getName()) == coincidences.end()) {
-            coincidences[serie->getName()] = {1, serie};
-          } else {
-            coincidences[serie->getName()].first++;
-          }
-        }
-      }
-    }
+    std::cout << std::endl;
 
-    if (coincidences.size() > 0) {
-      Serie *serie = nullptr;
-      int max = 0;
-
-      for (auto const &coincidence : coincidences) {
-        if (coincidence.second.first > max) {
-          max = coincidence.second.first;
-          serie = coincidence.second.second;
-        }
-      }
-
-      std::cout << std::endl << serie->toString() << "\n";
+    if (content != nullptr) {
+      std::cout << content->toString() << "\n\n";
     } else {
-      std::cout << std::endl
-                << Color::yellow("No se encontraron coincidencias\n");
+      std::cout << Color::red("No se encontro la serie") << "\n\n";
     }
 
     std::cout << "\nPresione enter para regresar al menu...";
@@ -356,6 +370,36 @@ void Platform::rateVideo() {
   this->checkUploadedFiles([]() {
     std::cout << "Calificar video\n\n";
     std::cin.ignore();
+  });
+}
+
+void Platform::seriesAverage() {
+  this->checkUploadedFiles([&]() {
+    std::string name;
+
+    std::cout << Font::bold("Calcular promedio de la serie") << "\n\n";
+    std::cout << "Ingrese el nombre de la serie: ";
+
+    std::cin.ignore();
+    std::getline(std::cin, name);
+
+    Content *content = this->search(&this->seriesDict, name);
+
+    std::cout << std::endl;
+
+    if (content != nullptr) {
+      std::cout << Color::green("Su promedio es: " +
+                                Number::withPrecision(content->getRating(), 1))
+                << "\n\n";
+      std::cout << content->toString() << std::endl;
+    } else {
+      std::cout << Color::red("No se encontro la serie") << "\n\n";
+    }
+
+    std::cout << "\nPresione enter para regresar al menu...";
+    std::cin.ignore();
+
+    this->menu();
   });
 }
 

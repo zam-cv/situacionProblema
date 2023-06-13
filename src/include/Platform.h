@@ -8,6 +8,9 @@
 #include "Movie.h"
 #include "Serie.h"
 #include "Episode.h"
+#include "Content.h"
+
+typedef std::unordered_map<std::string, std::vector<Content*>> ContentsDict;
 
 struct Option {
   std::string name;
@@ -16,10 +19,6 @@ struct Option {
 
 class Platform {
 private:
-  static const int LOAD_ERROR_OPTIONS_SIZE = 2;
-  static const int MENU_OPTIONS_SIZE = 6;
-  static const int FILE_LOAD_OPTIONS_SIZE = 2;
-
   Option *menuOptions;
   Option *fileLoadOptions;
   Option *loadErrorOptions;
@@ -28,7 +27,7 @@ private:
 
   std::vector<Video*> videos;
   std::vector<Movie*> movies;
-  std::unordered_map<std::string, std::vector<Serie*>> seriesDict;
+  ContentsDict seriesDict;
 
   bool isInvalid;
   bool uploadedFiles;
@@ -38,10 +37,12 @@ private:
   void showTitle();
   void showOptions(std::function<void()> showMessage, Option *handlers, int size);
   void loadFile();
+  Content* search(ContentsDict *dict, std::string name);
   void searchVideo();
   void searchSerie();
   void searchMovie();
   void rateVideo();
+  void seriesAverage();
   void checkUploadedFiles(std::function<void()> next);
 
 public:
