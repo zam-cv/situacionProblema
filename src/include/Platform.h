@@ -25,9 +25,10 @@ private:
 
   std::vector<std::string> genresVec;
 
-  std::vector<Video*> videos;
-  std::vector<Movie*> movies;
+  std::vector<Content *> episodesList;
+  std::vector<Content *> moviesList;
   ContentsDict seriesDict;
+  ContentsDict videosDict;
 
   bool isInvalid;
   bool uploadedFiles;
@@ -37,7 +38,9 @@ private:
   void showTitle();
   void showOptions(std::function<void()> showMessage, Option *handlers, int size);
   void loadFile();
+  void setWords(ContentsDict *dict, std::string name, Content *content);
   Content* search(ContentsDict *dict, std::string name);
+  std::vector<Content *> search(std::vector<Content *> *vec, double rating);
   void searchVideo();
   void searchSerie();
   void searchMovie();

@@ -19,6 +19,8 @@ public:
         std::string releaseDate);
   std::string toString() override;
   double getRating() override;
+  void setRating(double rating) override;
+  bool findGenre(std::string genre) override;
 };
 
 #endif

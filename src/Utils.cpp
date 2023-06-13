@@ -3,6 +3,7 @@
 #include <cctype>
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 namespace Font {
   std::string bold(std::string text) {

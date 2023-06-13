@@ -22,7 +22,7 @@ std::string Season::toString() {
   std::string episodes = "";
 
   for (int i = 0; i < this->episodes.size(); i++) {
-    episodes += this->episodes[i]->toString();
+    episodes += "    " + this->episodes[i]->toString();
 
     if (i != this->episodes.size() - 1) {
       episodes += "\n";
@@ -42,4 +42,10 @@ double Season::getRating() {
   }
 
   return rating / this->episodes.size();
+}
+
+void Season::setRating(double rating) {
+  for (int i = 0; i < this->episodes.size(); i++) {
+    this->episodes[i]->setRating(rating);
+  }
 }

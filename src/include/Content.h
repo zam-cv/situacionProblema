@@ -14,6 +14,8 @@ public:
   std::string getName();
   virtual double getRating() = 0;
   virtual std::string toString() = 0;
+  virtual void setRating(double rating) = 0;
+  virtual bool findGenre(std::string genre) = 0;
   virtual ~Content();
 };
 

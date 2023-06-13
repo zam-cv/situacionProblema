@@ -39,3 +39,19 @@ double Serie::getRating() {
 
   return rating / this->seasons.size();
 }
+
+void Serie::setRating(double rating) {
+  for (int i = 0; i < this->seasons.size(); i++) {
+    this->seasons[i]->setRating(rating);
+  }
+}
+
+bool Serie::findGenre(std::string genre) {
+  for (int i = 0; i < this->genres.size(); i++) {
+    if (this->genres[i] == genre) {
+      return true;
+    }
+  }
+
+  return false;
+}

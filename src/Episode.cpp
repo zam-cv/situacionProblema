@@ -12,7 +12,7 @@ Episode::Episode(Video video, int seasonNumber, int episodeNumber)
 }
 
 std::string Episode::toString() {
-  return Color::blue("    ⦿ ") + Font::bold(this->name) + " " +
+  return Color::blue("⦿ ") + Font::bold(this->name) + " " +
          Color::gray(this->releaseDate) + Color::magenta(" • ") +
          Number::withPrecision(this->rating, 1) + Color::magenta(" • ") +
          std::to_string(this->duration) + " min";

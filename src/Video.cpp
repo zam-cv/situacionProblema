@@ -24,3 +24,15 @@ std::string Video::toString() {
 }
 
 double Video::getRating() { return this->rating; }
+
+void Video::setRating(double rating) { this->rating = rating; }
+
+bool Video::findGenre(std::string genre) {
+  for (int i = 0; i < this->genres.size(); i++) {
+    if (this->genres[i] == genre) {
+      return true;
+    }
+  }
+
+  return false;
+}
