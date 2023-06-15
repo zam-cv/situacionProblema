@@ -27,6 +27,7 @@ namespace String {
   std::string toLower(std::string text);
   int toInt(std::string text);
   double toDouble(std::string text);
+  std::string replace(std::string text, std::string from, std::string to);
 }
 
 namespace Number {

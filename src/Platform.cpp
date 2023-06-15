@@ -143,7 +143,7 @@ void Platform::loadFile() {
       std::string name = String::trim(row[1]);
       const std::string durationStr = row[2];
       const std::vector<std::string> genres =
-          String::split(String::trim(row[3]), '&');
+          String::split(String::trim(String::replace(row[3], "' ", "&")), '&');
       const std::string ratingStr = row[4];
       const std::string releaseDate = row[5];
 

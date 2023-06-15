@@ -128,6 +128,35 @@ namespace String {
       return 0;
     }
   }
+
+  std::string replace(std::string text, std::string from, std::string to) {
+    std::string result = "";
+    std::string word = "";
+
+    for (int i = 0; i < text.size(); i++) {
+      if (text[i] == from[0]) {
+        bool match = true;
+
+        for (int j = 0; j < from.size(); j++) {
+          if (text[i + j] != from[j]) {
+            match = false;
+            break;
+          }
+        }
+
+        if (match) {
+          result += to;
+          i += from.size() - 1;
+        } else {
+          result += text[i];
+        }
+      } else {
+        result += text[i];
+      }
+    }
+
+    return result;
+  }
 }
 
 namespace Number {
