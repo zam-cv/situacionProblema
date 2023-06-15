@@ -11,7 +11,7 @@ private:
 
 public:
   Episode(Video video, int seasonNumber, int episodeNumber);
-  std::string toString();
+  std::string toString() override;
 };
 
 #endif

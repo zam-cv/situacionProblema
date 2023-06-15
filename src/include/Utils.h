@@ -31,6 +31,8 @@ namespace String {
 
 namespace Number {
   std::string withPrecision(double number, int precision);
+  bool inRange(int number, int min, int max);
+  bool isBetween(int number, int min, int max);
 }
 
 #endif

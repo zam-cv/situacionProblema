@@ -136,4 +136,12 @@ namespace Number {
     stream << std::fixed << std::setprecision(precision) << number;
     return stream.str();
   }
+
+  bool inRange(int number, int min, int max) {
+    return number >= min && number <= max;
+  }
+
+  bool isBetween(int number, int min, int max) {
+    return number > min && number < max;
+  }
 }

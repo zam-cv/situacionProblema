@@ -17,6 +17,7 @@ Video::Video(std::string id, std::string name, int duration,
 }
 
 std::string Video::toString() {
+  std::cout << "Video::toString()" << std::endl;
   return Font::bold(this->name) + " " + Color::gray(this->releaseDate) +
          Color::magenta(" • ") + Font::italic(String::join(this->genres, ' ')) +
          Color::magenta(" • ") + Number::withPrecision(this->rating, 1) +

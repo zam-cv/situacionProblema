@@ -74,10 +74,9 @@ void Platform::showOptions(std::function<void()> showMessage, Option *handlers,
     std::cout << (this->isInvalid ? Color::red("❯ ") : "❯ ");
     std::getline(std::cin, optionStr);
 
-    int optionInt = String::toInt(optionStr);
-    optionInt--;
+    int optionInt = String::toInt(optionStr) - 1;
 
-    if (optionInt >= 0 && optionInt < size) {
+    if (Number::isBetween(optionInt, -1, size)) {
       option = optionInt;
       break;
     }
@@ -105,9 +104,8 @@ void Platform::loadFile() {
 
   std::getline(std::cin, path);
 
-  if (path.empty()) {
+  if (path.empty())
     path = DEFAULT_DATA_FILE_PATH;
-  }
 
   std::ifstream file(path);
 
@@ -134,11 +132,8 @@ void Platform::loadFile() {
 
       while ((pos = line.find(delimiter)) != std::string::npos) {
         token = line.substr(0, pos);
-
-        if (!token.empty() && token != "\r") {
+        if (!token.empty() && token != "\r")
           row.push_back(token);
-        }
-
         line.erase(0, pos + delimiter.length());
       }
 
@@ -170,8 +165,8 @@ void Platform::loadFile() {
         const std::string seasonNumberStr = row[8];
         const std::string episodeNumberStr = row[9];
 
-        int seasonNumber = std::stoi(seasonNumberStr);
-        int episodeNumber = std::stoi(episodeNumberStr);
+        int seasonNumber = String::toInt(seasonNumberStr);
+        int episodeNumber = String::toInt(episodeNumberStr);
 
         Video video(idEpisode, nameEpisode, duration, genres, rating,
                     releaseDate);
@@ -241,9 +236,8 @@ void Platform::setWords(ContentsDict *dict, std::string name,
 
   if (words.size() > 1) {
     for (std::string word : words) {
-      if (word.size() > 2) {
+      if (word.size() > 2)
         (*dict)[word].push_back(content);
-      }
     }
   } else {
     (*dict)[name].push_back(content);
@@ -273,9 +267,8 @@ std::vector<Content *> Platform::search(std::vector<Content *> *vec,
   std::vector<Content *> contents;
 
   for (Content *content : *vec) {
-    if (content->getRating() >= rating) {
+    if (content->getRating() >= rating)
       contents.push_back(content);
-    }
   }
 
   return contents;
@@ -316,8 +309,9 @@ Content *Platform::search(ContentsDict *dict, std::string name) {
 
 void Platform::searchVideo() {
   this->checkUploadedFiles([&]() {
+    int genresPerLine = 7;
     std::string ratingStr;
-    std::string genre;
+    std::string genreStr;
 
     std::cout << Font::bold("Buscar video") << "\n\n";
     std::cout
@@ -330,40 +324,53 @@ void Platform::searchVideo() {
     std::cout << "Ingrese la calificación: ";
     std::getline(std::cin, ratingStr);
 
-    std::cout << std::endl << "Generos disponibles: " << "\n\n";
+    std::cout << std::endl << Font::bold("Generos disponibles: ") << "\n\n";
 
     for (int i = 0; i < this->genresVec.size(); i++) {
-      std::cout << i + 1 << ". " << this->genresVec[i] << std::endl;
+      std::cout << i + 1 << ". " << this->genresVec[i] << "  ";
+
+      if ((i + 1) % genresPerLine == 0)
+        std::cout << std::endl;
     }
+
+    if (this->genresVec.size() % genresPerLine != 0)
+      std::cout << std::endl;
 
     std::cout << std::endl << "Ingrese el genero: ";
-    std::getline(std::cin, genre);
+    std::getline(std::cin, genreStr);
 
+    int genreInt = String::toInt(genreStr) - 1;
     std::cout << std::endl;
 
-    double rating = String::toDouble(ratingStr);
+    if (Number::isBetween(genreInt, -1, this->genresVec.size())) {
+      std::string genre = this->genresVec[genreInt];
+      double rating = String::toDouble(ratingStr);
 
-    std::vector<Content *> contents = this->search(&this->moviesList, rating);
-    std::vector<Content *> episodes = this->search(&this->episodesList, rating);
+      std::vector<Content *> movies = this->search(&this->moviesList, rating);
+      std::vector<Content *> episodes = this->search(&this->episodesList, rating);
 
-    int count = 0;
+      int count = 0;
 
-    for (Content *content : contents) {
-      if (content->findGenre(genre)) {
-        std::cout << content->toString() << std::endl;
-        count++;
+      for (Content *content : movies) {
+        if (content->findGenre(genre)) {
+          std::cout << content->toString() << std::endl;
+          count++;
+        }
       }
-    }
 
-    for (Content *content : episodes) {
-      if (content->findGenre(genre)) {
-        std::cout << content->toString() << std::endl;
-        count++;
+      for (Content *content : episodes) {
+        if (content->findGenre(genre)) {
+          Movie vid = *(Movie *)(content);
+          std::cout << vid.toString() << std::endl;
+          count++;
+        }
       }
-    }
 
-    if (count == 0) {
-      std::cout << Color::red("No se encontraron videos") << std::endl;
+      if (count == 0) {
+        std::cout << Color::red("No se encontraron videos") << std::endl;
+      }
+    } else {
+      std::cout << Color::red("La opcion ingresada no es valida") << std::endl;
     }
   });
 }

@@ -4,6 +4,7 @@
 #include "./include/Utils.h"
 
 #include <string>
+#include <iostream>
 
 Episode::Episode(Video video, int seasonNumber, int episodeNumber)
     : Video(video) {
@@ -12,6 +13,7 @@ Episode::Episode(Video video, int seasonNumber, int episodeNumber)
 }
 
 std::string Episode::toString() {
+  std::cout << "Episode::toString()" << std::endl;
   return Color::blue("⦿ ") + Font::bold(this->name) + " " +
          Color::gray(this->releaseDate) + Color::magenta(" • ") +
          Number::withPrecision(this->rating, 1) + Color::magenta(" • ") +
