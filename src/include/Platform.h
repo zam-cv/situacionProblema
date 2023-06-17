@@ -19,20 +19,25 @@ struct Option {
 
 class Platform {
 private:
+  // Opciones
   Option *menuOptions;
   Option *fileLoadOptions;
   Option *loadErrorOptions;
 
+  // Generos
   std::vector<std::string> genresVec;
 
+  // Contenido
   std::vector<Content *> episodesList;
   std::vector<Content *> moviesList;
   ContentsDict seriesDict;
   ContentsDict videosDict;
 
+  // Variables de control
   bool isInvalid;
   bool uploadedFiles;
 
+  // Funciones
   void clear();
   void menu();
   void showTitle();
