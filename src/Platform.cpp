@@ -20,7 +20,7 @@ static const int LOAD_ERROR_OPTIONS_SIZE = 2;
 static const int MENU_OPTIONS_SIZE = 7;
 static const int FILE_LOAD_OPTIONS_SIZE = 2;
 static const std::string TITLE = "Plataforma de Streaming";
-static const std::string DEFAULT_DATA_FILE_PATH = "../DatosPeliculas.csv";
+static const std::string DEFAULT_DATA_FILE_PATH = "DatosPeliculas.csv";
 
 Platform::Platform() {
   // Opciones del menú
@@ -380,6 +380,15 @@ void Platform::searchVideo() {
               << "\n\n";
 
     std::string ratingStr = Console::input("Ingrese la calificación: ");
+    double rating = String::toDouble(ratingStr);
+
+    if (rating < 0 || rating > 10) {
+      std::cout << std::endl
+                << Color::red("La calificación debe estar entre 0 y 10")
+                << std::endl;
+      return;
+    }
+
     std::cout << std::endl << Font::bold("Géneros disponibles: ") << "\n\n";
 
     // Se imprimen los generos
@@ -404,7 +413,6 @@ void Platform::searchVideo() {
     if (Number::isBetween(genreInt, -1, this->genresVec.size())) {
       // Se obtiene el genero seleccionado
       std::string genre = this->genresVec[genreInt];
-      double rating = String::toDouble(ratingStr);
 
       // Se buscan los contenidos
       std::vector<Content *> movies = this->search(&this->moviesList, rating);
@@ -468,6 +476,13 @@ void Platform::searchMovie() {
     std::string ratingStr = Console::input("Ingrese la calificación: ");
     double rating = String::toDouble(ratingStr);
 
+    if (rating < 0 || rating > 10) {
+      std::cout << std::endl
+                << Color::red("La calificación debe estar entre 0 y 10")
+                << std::endl;
+      return;
+    }
+
     // Se buscan las peliculas por rating
     std::vector<Content *> moviesChunk =
         this->search(&this->moviesList, rating);
@@ -490,16 +505,17 @@ void Platform::rateVideo() {
   this->checkUploadedFiles([&]() {
     std::cout << Font::bold("Calificar video") << "\n\n";
     std::string name = Console::input("Ingrese el nombre del video: ");
-    std::string ratingStr = Console::input("Ingrese la calificación: ");
-
-    double rating = String::toDouble(ratingStr);
 
     // Se busca el video por nombre
     Content *content = this->search(&this->videosDict, name);
-    std::cout << std::endl;
 
     // Se verifica si se encontro el video
     if (content != nullptr) {
+      std::string ratingStr = Console::input("Ingrese la calificación: ");
+      double rating = String::toDouble(ratingStr);
+
+      std::cout << std::endl;
+
       // Se verifica si el rating esta en el rango
       if (rating >= 0 && rating <= 10) {
         // Se coloca el nuevo rating
@@ -512,7 +528,7 @@ void Platform::rateVideo() {
                   << std::endl;
       }
     } else {
-      std::cout << Color::red("No se encontró el video") << std::endl;
+      std::cout << std::endl << Color::red("No se encontró el video") << std::endl;
     }
   });
 }

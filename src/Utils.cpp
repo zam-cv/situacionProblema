@@ -147,9 +147,9 @@ namespace String {
     try {
       return std::stoi(text);
     } catch (std::invalid_argument const &e) {
-      return 0;
+      return -1;
     } catch (std::out_of_range const &e) {
-      return 0;
+      return -1;
     }
   }
 
@@ -160,9 +160,9 @@ namespace String {
     try {
       return std::stod(text);
     } catch (std::invalid_argument const &e) {
-      return 0;
+      return -1;
     } catch (std::out_of_range const &e) { 
-      return 0;
+      return -1;
     }
   }
 
