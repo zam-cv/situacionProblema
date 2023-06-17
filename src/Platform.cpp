@@ -59,21 +59,18 @@ void Platform::run() {
 
 void Platform::showOptions(std::function<void()> showMessage, Option *handlers,
                            int size) {
-  std::string optionStr;
   int option;
 
   while (true) {
     this->showTitle();
     showMessage();
 
-    for (int i = 0; i < size; i++) {
-      std::cout << i + 1 << ". " << handlers[i].name << std::endl;
-    }
+    for (int i = 0; i < size; i++)
+      std::cout << Font::bold(Number::toStr(i + 1) + ". ") << handlers[i].name
+                << std::endl;
 
     std::cout << std::endl;
-    std::cout << (this->isInvalid ? Color::red("❯ ") : "❯ ");
-    std::getline(std::cin, optionStr);
-
+    std::string optionStr = Console::input(this->isInvalid ? Color::red("❯ ") : "❯ ");
     int optionInt = String::toInt(optionStr) - 1;
 
     if (Number::isBetween(optionInt, -1, size)) {
@@ -95,14 +92,10 @@ void Platform::menu() {
 }
 
 void Platform::loadFile() {
-  std::string path;
-
   std::cout << Font::bold("Carga del archivo de datos") << "\n\n";
   std::cout << "Archivo a usar si se presiona enter: " << DEFAULT_DATA_FILE_PATH
             << std::endl;
-  std::cout << "Ingrese la direccion del archivo: ";
-
-  std::getline(std::cin, path);
+  std::string path = Console::input("Ingrese la direccion del archivo: ");
 
   if (path.empty())
     path = DEFAULT_DATA_FILE_PATH;
@@ -124,6 +117,7 @@ void Platform::loadFile() {
     std::getline(file, line);
 
     while (std::getline(file, line)) {
+      std::set<std::string> currentGenresSet;
       std::vector<std::string> row;
 
       std::string delimiter = ",";
@@ -152,11 +146,12 @@ void Platform::loadFile() {
 
       for (std::string genre : genres) {
         genresSet.insert(genre);
+        currentGenresSet.insert(genre);
       }
 
       if (row.size() == 7) {
-        Movie *movie =
-            new Movie(id, name, duration, genres, rating, releaseDate);
+        Movie *movie = new Movie(id, name, duration, currentGenresSet, rating,
+                                 releaseDate);
         this->moviesList.push_back(movie);
         this->setWords(&this->videosDict, name, movie);
       } else if (row.size() == 10) {
@@ -168,7 +163,7 @@ void Platform::loadFile() {
         int seasonNumber = String::toInt(seasonNumberStr);
         int episodeNumber = String::toInt(episodeNumberStr);
 
-        Video video(idEpisode, nameEpisode, duration, genres, rating,
+        Video video(idEpisode, nameEpisode, duration, currentGenresSet, rating,
                     releaseDate);
         Episode *episode = new Episode(video, seasonNumber, episodeNumber);
 
@@ -181,7 +176,7 @@ void Platform::loadFile() {
           Season *season = new Season(episodes, seasonNumber);
           seasons.push_back(season);
 
-          Serie *serie = new Serie(id, name, genres, seasons);
+          Serie *serie = new Serie(id, name, currentGenresSet, seasons);
 
           std::unordered_map<int, Season *> seasonsHash;
           seasonsHash[seasonNumber] = season;
@@ -219,13 +214,10 @@ void Platform::loadFile() {
         this->episodesList.begin(), this->episodesList.end(),
         [](Content *a, Content *b) { return a->getRating() > b->getRating(); });
 
-    std::cout << std::endl;
-
-    std::cout << Color::green("Los datos se han cargado correctamente");
+    std::cout << Color::green("\nLos datos se han cargado correctamente");
     this->uploadedFiles = true;
 
-    std::cout << "\nPresione enter para regresar al menu...";
-    std::cin.ignore();
+    Console::pause("\nPresione enter para regresar al menu...");
   }
 }
 
@@ -247,9 +239,7 @@ void Platform::setWords(ContentsDict *dict, std::string name,
 void Platform::checkUploadedFiles(std::function<void()> next) {
   if (this->uploadedFiles) {
     next();
-
-    std::cout << "\nPresione enter para regresar al menu...";
-    std::cin.ignore();
+    Console::pause("\nPresione enter para regresar al menu...");
     this->menu();
 
     return;
@@ -310,8 +300,6 @@ Content *Platform::search(ContentsDict *dict, std::string name) {
 void Platform::searchVideo() {
   this->checkUploadedFiles([&]() {
     int genresPerLine = 7;
-    std::string ratingStr;
-    std::string genreStr;
 
     std::cout << Font::bold("Buscar video") << "\n\n";
     std::cout
@@ -321,13 +309,12 @@ void Platform::searchVideo() {
                  "ingresado."
               << "\n\n";
 
-    std::cout << "Ingrese la calificación: ";
-    std::getline(std::cin, ratingStr);
-
+    std::string ratingStr = Console::input("Ingrese la calificación: ");
     std::cout << std::endl << Font::bold("Generos disponibles: ") << "\n\n";
 
     for (int i = 0; i < this->genresVec.size(); i++) {
-      std::cout << i + 1 << ". " << this->genresVec[i] << "  ";
+      std::cout << Font::bold(Number::toStr(i + 1) + ". ") << this->genresVec[i]
+                << "  ";
 
       if ((i + 1) % genresPerLine == 0)
         std::cout << std::endl;
@@ -336,8 +323,7 @@ void Platform::searchVideo() {
     if (this->genresVec.size() % genresPerLine != 0)
       std::cout << std::endl;
 
-    std::cout << std::endl << "Ingrese el genero: ";
-    std::getline(std::cin, genreStr);
+    std::string genreStr = Console::input("\nIngrese el genero: ");
 
     int genreInt = String::toInt(genreStr) - 1;
     std::cout << std::endl;
@@ -347,7 +333,8 @@ void Platform::searchVideo() {
       double rating = String::toDouble(ratingStr);
 
       std::vector<Content *> movies = this->search(&this->moviesList, rating);
-      std::vector<Content *> episodes = this->search(&this->episodesList, rating);
+      std::vector<Content *> episodes =
+          this->search(&this->episodesList, rating);
 
       int count = 0;
 
@@ -366,9 +353,8 @@ void Platform::searchVideo() {
         }
       }
 
-      if (count == 0) {
+      if (count == 0)
         std::cout << Color::red("No se encontraron videos") << std::endl;
-      }
     } else {
       std::cout << Color::red("La opcion ingresada no es valida") << std::endl;
     }
@@ -377,15 +363,10 @@ void Platform::searchVideo() {
 
 void Platform::searchSerie() {
   this->checkUploadedFiles([&]() {
-    std::string name;
-
     std::cout << Font::bold("Buscar serie") << "\n\n";
-    std::cout << "Ingrese el nombre de la serie: ";
-
-    std::getline(std::cin, name);
+    std::string name = Console::input("Ingrese el nombre de la serie: ");
 
     Content *content = this->search(&this->seriesDict, name);
-
     std::cout << std::endl;
 
     if (content != nullptr) {
@@ -398,15 +379,12 @@ void Platform::searchSerie() {
 
 void Platform::searchMovie() {
   this->checkUploadedFiles([&]() {
-    std::string ratingStr;
-
     std::cout << Font::bold("Buscar peliculas") << "\n\n";
     std::cout
         << "Se daran las peliculas cuya calificación sea mayor a la ingresada"
         << std::endl;
-    std::cout << "Ingrese la calificación: ";
 
-    std::getline(std::cin, ratingStr);
+    std::string ratingStr = Console::input("Ingrese la calificación: ");
     double rating = String::toDouble(ratingStr);
 
     std::vector<Content *> moviesChunk =
@@ -426,21 +404,12 @@ void Platform::searchMovie() {
 
 void Platform::rateVideo() {
   this->checkUploadedFiles([&]() {
-    std::string name;
-    std::string ratingStr;
-
     std::cout << Font::bold("Calificar video") << "\n\n";
-
-    std::cout << "Ingrese el nombre del video: ";
-    std::getline(std::cin, name);
-
-    std::cout << "Ingrese la calificación: ";
-    std::getline(std::cin, ratingStr);
+    std::string name = Console::input("Ingrese el nombre del video: ");
+    std::string ratingStr = Console::input("Ingrese la calificación: ");
 
     double rating = String::toDouble(ratingStr);
-
     Content *content = this->search(&this->videosDict, name);
-
     std::cout << std::endl;
 
     if (content != nullptr) {
@@ -461,14 +430,10 @@ void Platform::rateVideo() {
 
 void Platform::seriesAverage() {
   this->checkUploadedFiles([&]() {
-    std::string name;
-
     std::cout << Font::bold("Calcular promedio de la serie") << "\n\n";
-    std::cout << "Ingrese el nombre de la serie: ";
-    std::getline(std::cin, name);
+    std::string name = Console::input("Ingrese el nombre de la serie: ");
 
     Content *content = this->search(&this->seriesDict, name);
-
     std::cout << std::endl;
 
     if (content != nullptr) {

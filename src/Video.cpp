@@ -5,9 +5,10 @@
 
 #include <iostream>
 #include <string>
+#include <set>
 
 Video::Video(std::string id, std::string name, int duration,
-             std::vector<std::string> genres, double rating,
+             std::set<std::string> genres, double rating,
              std::string releaseDate)
     : Content(id, name) {
   this->releaseDate = releaseDate;
@@ -26,13 +27,3 @@ std::string Video::toString() {
 double Video::getRating() { return this->rating; }
 
 void Video::setRating(double rating) { this->rating = rating; }
-
-bool Video::findGenre(std::string genre) {
-  for (int i = 0; i < this->genres.size(); i++) {
-    if (this->genres[i] == genre) {
-      return true;
-    }
-  }
-
-  return false;
-}

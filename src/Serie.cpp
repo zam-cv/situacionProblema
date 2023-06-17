@@ -1,4 +1,5 @@
 #include <string>
+#include <set>
 
 #include "./include/Content.h"
 #include "./include/Season.h"
@@ -6,9 +7,10 @@
 
 #include "./include/Utils.h"
 
-Serie::Serie(std::string id, std::string name, std::vector<std::string> genres,
+Serie::Serie(std::string id, std::string name, std::set<std::string> genres,
              std::vector<Season *> seasons)
     : Content(id, name) {
+
   this->genres = genres;
   this->seasons = seasons;
 }
@@ -44,14 +46,4 @@ void Serie::setRating(double rating) {
   for (int i = 0; i < this->seasons.size(); i++) {
     this->seasons[i]->setRating(rating);
   }
-}
-
-bool Serie::findGenre(std::string genre) {
-  for (int i = 0; i < this->genres.size(); i++) {
-    if (this->genres[i] == genre) {
-      return true;
-    }
-  }
-
-  return false;
 }

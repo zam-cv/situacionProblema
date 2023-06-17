@@ -6,20 +6,19 @@
 
 #include <string>
 #include <vector>
+#include <set>
 
 class Serie : public Content {
 private:
-  std::vector<std::string> genres;
   std::vector<Season *> seasons;
 
 public:
-  Serie(std::string id, std::string name, std::vector<std::string> genres,
+  Serie(std::string id, std::string name, std::set<std::string> genres,
         std::vector<Season *> seasons);
   std::string toString() override;
   double getRating() override;
   void setRating(double rating) override;
   void pushSeason(Season *season);
-  bool findGenre(std::string genre) override;
 };
 
 #endif

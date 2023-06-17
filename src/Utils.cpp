@@ -99,6 +99,23 @@ namespace String {
     return result;
   }
 
+  std::string join(std::set<std::string> text, char delimiter) {
+    std::string result = "";
+    int i = 0;
+
+    for (auto it = text.begin(); it != text.end(); it++) {
+      result += *it;
+
+      if (i != text.size() - 1) {
+        result += delimiter;
+      }
+
+      i++;
+    }
+
+    return result;
+  }
+
   std::string toLower(std::string text) {
     std::string result = "";
 
@@ -172,5 +189,29 @@ namespace Number {
 
   bool isBetween(int number, int min, int max) {
     return number > min && number < max;
+  }
+
+  std::string toStr(int number) {
+    std::stringstream stream;
+    stream << number;
+    return stream.str();
+  }
+}
+
+namespace Console {
+  std::string input(std::string text) {
+    std::cout << text;
+    std::string result;
+    std::getline(std::cin, result);
+    return result;
+  }
+
+  void pause() {
+    std::cin.ignore();
+  }
+
+  void pause(std::string text) {
+    std::cout << text;
+    std::cin.ignore();
   }
 }

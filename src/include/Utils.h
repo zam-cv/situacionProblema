@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <set>
 
 namespace Font {
   std::string bold(std::string text);
@@ -24,6 +25,7 @@ namespace String {
   std::string trim(std::string text);
   std::vector<std::string> split(std::string text, char delimiter);
   std::string join(std::vector<std::string> text, char delimiter);
+  std::string join(std::set<std::string> text, char delimiter);
   std::string toLower(std::string text);
   int toInt(std::string text);
   double toDouble(std::string text);
@@ -32,8 +34,15 @@ namespace String {
 
 namespace Number {
   std::string withPrecision(double number, int precision);
+  std::string toStr(int number);
   bool inRange(int number, int min, int max);
   bool isBetween(int number, int min, int max);
+}
+
+namespace Console {
+  std::string input(std::string text);
+  void pause(std::string text);
+  void pause();
 }
 
 #endif
