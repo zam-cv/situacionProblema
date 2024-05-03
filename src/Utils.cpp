@@ -163,7 +163,7 @@ namespace String {
       return -1;
     } catch (std::out_of_range const &e) { 
       return -1;
-    }
+    } 
   }
 
   // Reemplaza todas las ocurrencias de un string por otro
